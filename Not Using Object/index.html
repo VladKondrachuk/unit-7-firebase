@@ -23,32 +23,27 @@
     <div class="jumbotron jumbotron-fluid">
             <div class="container">
               <h2 class="display-4">Anytime is Train Time</h2>
-              <h3 class="lead">Choo Choo</h3>
-              <h3 class="currentTime"></h3>
+              <p class="lead">Choo Choo</p>
             </div>
           </div>
 
           <br><br>               
-          <table class="table" id="responseTable_html">
-              <thead>
-                <tr>
-                  <th scope="col" id="trainTable_html">Train Name</th>
-                  <th scope="col" id="destinationTable_html">Destination</th>
-                  <th scope="col" id="frequency_html">Frequency (min)</th>
-                  <th scope="col" id="arrivalTable_html">Next Arrival</th>
-                  <th scope="col" id="minutesTable_html">Minutes Away</th>
-                </tr>
-              </thead>
-              
-              <div>
-              <tbody id="contentBucket">  
+                    <table class="table" id="responseTable_html">
+                            <thead>
+                              <tr>
+                                <th scope="col" id="trainTable_html">Train Name</th>
+                                <th scope="col" id="destinationTable_html">Destination</th>
+                                <th scope="col" id="frequency_html">Frequency (min)</th>
+                                <th scope="col" id="arrivalTable_html">Next Arrival</th>
+                                <th scope="col" id="minutesTable_html">Minutes Away</th>
+                              </tr>
+                            </thead>
+                            <tbody id="contentBucket">
                                 
-              </tbody>
-            </table>
-          </div>
-                  </div>
+                              
+                            </tbody>
+                          </table>
              
-
             <div class="container">
 
                     <form class="form">
@@ -78,7 +73,6 @@
   <script src="https://www.gstatic.com/firebasejs/5.2.0/firebase.js"></script>
   <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
   <script>
-    
   var config = {
     apiKey: "AIzaSyBf0pkGVXjkQYUqbnYwZudZ37JacVA9VTc",
     authDomain: "train-schedule-5369e.firebaseapp.com",
@@ -87,53 +81,55 @@
     storageBucket: "",
     messagingSenderId: "546881355307"
   };
-  
-  
-  
-    firebase.initializeApp(config);
+  firebase.initializeApp(config);
 
+  console.log("hello"); //Checking if connected app.js to index.html
 
   var dataRef = firebase.database();
-  function update(){
-    $(".currentTime").html("Current Time: " + moment().format('DD MMMM YYYY H:mm:ss'));
+  
+// Time is 3:30 AM and  Frequency is every 3 min
+  var tFrequency = "";
+  var firstTime = "";
+//User Inputs Train Name and Train Destination
+  var trainNameJS = "";
+  var destinationJS = "";
 
-    $("#add-train").on("click", function(event){
+
+                   
+
+  //Capture Input
+  $("#add-train").on("click", function(event){
       event.preventDefault();
-      console.log("Working");
-      var trainNameJS = $("#TrainName_html").val().trim();
-      var destinationJS = $("#Destination_html").val().trim();
-      var firstTime = moment($('#TrainTime_html').val().trim(), "HH:mm").format("HH:mm");
-      var tFrequency = $("#Frequency_html").val().trim();
 
-      $('#TrainName_html').val("");
-      $('#Destination_html').val("");
-      $('#TrainTime_html').val("");
-      $('#Frequency_html').val("");
+      trainNameJS = $("#TrainName_html").val().trim();
+      destinationJS = $("#Destination_html").val().trim();
+      firstTime = $("#TrainTime_html").val().trim();
+      tFrequency = $("#Frequency_html").val().trim();
+//Checking if data is stored in console.
+        console.log(trainNameJS);
+        console.log(destinationJS);
+        console.log("First Time Entered" + firstTime);
+        console.log(tFrequency);
 
-
-      var theTrain = {   //create an object to store train data 
-        name : trainNameJS,
-        location : destinationJS,
-        start : firstTime,
-        arrivals : tFrequency
-      }
-
-      dataRef.ref().push(theTrain); //pushes train to database - WORKING!!!!
-      console.log(theTrain.name);
-      
-
-  })
-
-dataRef.ref().on("child_added", function(childSnapshot){
-
-    var trainNameJS = childSnapshot.val().name;
-    var destinationJS = childSnapshot.val().location;
-    var firstTime = childSnapshot.val().start;
-    var tFrequency = childSnapshot.val().arrivals;
+        dataRef.ref().push({
+            trainNameJS: trainNameJS,
+            destinationJS: destinationJS,
+            firstTime: firstTime,
+            tFrequency: tFrequency,
+        })
+  });
 
 
+  
 
-    var firstTimeConverted = moment(firstTime, "hh:mm").subtract(1, "years");
+  dataRef.ref().on("child_added", function(childSnapshot){
+    childSnapshot.val().trainNameJS;
+    childSnapshot.val().destinationJS;
+    childSnapshot.val().firstTime;
+    childSnapshot.val().tFrequency;
+
+ // First Time (pushed back 1 year to make sure it comes before current time)
+ var firstTimeConverted = moment(firstTime, "hh:mm").subtract(1, "years");
                         console.log(firstTimeConverted);
 
                     // Current Time
@@ -156,50 +152,16 @@ dataRef.ref().on("child_added", function(childSnapshot){
                     var nextTrain = moment().add(tMinutesTillTrain, "minutes");
                     console.log("ARRIVAL TIME: " + moment(nextTrain).format("hh:mm"))
 
-                    
-                    //
-                   
-                    //$("#tempContentBucket").remove();
-                    //$("#contentBucket").html("");
-                    
-                      
-                      $("#contentBucket").append("<tr id='tempContentBucket'><td>" + trainNameJS + "</td><td>" + destinationJS + "</td><td>" + tFrequency + "</td><td>" + moment(nextTrain).format("hh:mm") + "</td><td>" + tMinutesTillTrain + "</td></tr>");
-                    
-
- 
-})
 
 
 
+$("#contentBucket").append("<tr><th scope='col' id='trainTable_html'>"+ childSnapshot.val().trainNameJS +
+        " </th><th scope='col' id='destinationTable_html'> " + childSnapshot.val().destinationJS +
+          " </th><th scope='col' id='frequency_html'> " + childSnapshot.val().tFrequency +
+                " </th><th scope='col' id='frequency_html'> " + moment(nextTrain).format("hh:mm") +
+            " </th><th scope='col' id='minutesTable_html'> " + tMinutesTillTrain + " </th></tr>");
 
-
-
-
-
-
-
-
-
-
-
-
-}
-
-update();
-//setInterval((document.refresh()), 1000);
-
-
-//setInterval(function(){ 
-  //$("#tempContentBucket").remove();
-  //update(); }, 
-  
-  
-  //3000);
-
-
-
-
-
+  })
 </script>
 </body>
 
