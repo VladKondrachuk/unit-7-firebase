@@ -95,6 +95,7 @@
 
   var dataRef = firebase.database();
   function update(){
+    $("#contentBucket").empty();
     $(".currentTime").html("Current Time: " + moment().format('DD MMMM YYYY H:mm:ss'));
 
     $("#add-train").on("click", function(event){
@@ -160,7 +161,7 @@ dataRef.ref().on("child_added", function(childSnapshot){
                     //
                    
                     //$("#tempContentBucket").remove();
-                    //$("#contentBucket").html("");
+                    //$("#contentBucket").empty();
                     
                       
                       $("#contentBucket").append("<tr id='tempContentBucket'><td>" + trainNameJS + "</td><td>" + destinationJS + "</td><td>" + tFrequency + "</td><td>" + moment(nextTrain).format("hh:mm") + "</td><td>" + tMinutesTillTrain + "</td></tr>");
@@ -185,8 +186,8 @@ dataRef.ref().on("child_added", function(childSnapshot){
 
 }
 
-update();
-//setInterval((document.refresh()), 1000);
+
+setInterval(update, 1000);
 
 
 //setInterval(function(){ 
